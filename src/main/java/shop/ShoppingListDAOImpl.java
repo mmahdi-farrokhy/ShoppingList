@@ -1,8 +1,9 @@
 package shop;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,22 +15,21 @@ import java.util.Properties;
 import static java.sql.DriverManager.getConnection;
 
 public class ShoppingListDAOImpl implements ShoppingListDAO {
-    public static final String SELECT_QUERY = "SELECT * FROM item";
-    public static final String INSERT_QUERY = "INSERT INTO item (Name, Quantity) VALUES (?, ?)";
-    public static final String COUNT_QUERY = "SELECT COUNT(*) AS numOfRecords FROM item WHERE Name IS NOT NULL;";
-    public static final String DELETE_QUERY = "TRUNCATE TABLE item;";
-    public static final String FIND_QUERY = "SELECT * FROM item WHERE Name = ?";
-    private String HOST;
-    private String USERNAME;
-    private String PASSWORD;
+    private static final String SELECT_QUERY = "SELECT * FROM item";
+    private static final String INSERT_QUERY = "INSERT INTO item (Name, Quantity) VALUES (?, ?)";
+    private static final String COUNT_QUERY = "SELECT COUNT(*) AS numOfRecords FROM item WHERE Name IS NOT NULL;";
+    private static final String DELETE_QUERY = "TRUNCATE TABLE item;";
+    private static String host;
+    private static String username;
+    private static String password;
 
     public ShoppingListDAOImpl() {
-        try (InputStream configFile = new FileInputStream("db-config.properties")){
+        try (InputStream configFile = Files.newInputStream(Paths.get("db-config.properties"))){
             final Properties properties = new Properties();
             properties.load(configFile);
-            HOST = properties.get("host").toString();
-            USERNAME = properties.get("user").toString();
-            PASSWORD = properties.get("pass").toString();
+            host = properties.get("host").toString();
+            username = properties.get("user").toString();
+            password = properties.get("pass").toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,8 +38,8 @@ public class ShoppingListDAOImpl implements ShoppingListDAO {
     @Override
     public List<Item> findAllItems() {
         List<Item> items = new LinkedList<>();
-        try(final Connection con = getConnection(HOST, USERNAME, PASSWORD);
-            PreparedStatement SELECT = con.prepareStatement(SELECT_QUERY);){
+        try(final Connection con = getConnection(host, username, password);
+            PreparedStatement SELECT = con.prepareStatement(SELECT_QUERY)){
 
             final ResultSet resultSet = SELECT.executeQuery();
             while (resultSet.next()){
@@ -49,15 +49,15 @@ public class ShoppingListDAOImpl implements ShoppingListDAO {
             }
 
         } catch (SQLException e){
-            throw new MainSQLException(e);
+            throw new QueryExecutionException(e);
         }
         return items;
     }
 
     @Override
     public void saveItems(List<Item> items) {
-        try(final Connection con = getConnection(HOST, USERNAME, PASSWORD);
-            PreparedStatement INSERT = con.prepareStatement(INSERT_QUERY);){
+        try(final Connection con = getConnection(host, username, password);
+            PreparedStatement INSERT = con.prepareStatement(INSERT_QUERY)){
 
             for (Item item : items) {
                 INSERT.setString(1, item.getName());
@@ -66,36 +66,32 @@ public class ShoppingListDAOImpl implements ShoppingListDAO {
             }
 
         } catch (SQLException e){
-            throw new MainSQLException(e);
+            throw new QueryExecutionException(e);
         }
     }
 
     @Override
     public int countRecords() {
-        int numOfRecords = 0;
-
-        try(final Connection con = getConnection(HOST, USERNAME, PASSWORD);
-            PreparedStatement COUNT = con.prepareStatement(COUNT_QUERY);){
+        try(final Connection con = getConnection(host, username, password);
+            PreparedStatement COUNT = con.prepareStatement(COUNT_QUERY)){
 
             final ResultSet resultSet = COUNT.executeQuery();
             resultSet.next();
-            numOfRecords = resultSet.getInt(1);
-
+            return resultSet.getInt(1);
         } catch (SQLException e){
-            throw new MainSQLException(e);
+            throw new QueryExecutionException(e);
         }
-        return numOfRecords;
     }
 
     @Override
     public void clearList() {
-        try(final Connection con = getConnection(HOST, USERNAME, PASSWORD);
-            PreparedStatement DELETE = con.prepareStatement(DELETE_QUERY);){
+        try(final Connection con = getConnection(host, username, password);
+            PreparedStatement DELETE = con.prepareStatement(DELETE_QUERY)){
 
             DELETE.execute();
 
         } catch (SQLException e){
-            throw new MainSQLException(e);
+            throw new QueryExecutionException(e);
         }
     }
 }

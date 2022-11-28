@@ -1,27 +1,34 @@
 package shop;
 
 public class Item {
-    private String Name;
-    private int Quantity;
+    private final String name;
+    private final int quantity;
 
     public Item(String Name, int Quantity) {
-        this.Name = Name;
-        this.Quantity = Quantity;
+        this.name = Name;
+        this.quantity = Quantity;
     }
 
     public void check() {
-        if (Name == null || Name.isEmpty())
+        if (invalidName())
             throw new ItemNameException("Name is null or empty");
 
-        if (Quantity < 1 || Quantity > 100)
+        if (invalidQuantity())
             throw new ItemQuantityException("Size is out of range");
+    }
+    private boolean invalidName(){
+        return ((name == null) || (name.isEmpty()));
+    }
+
+    private boolean invalidQuantity(){
+        return ((quantity < 1) || (quantity > 100));
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public int getQuantity() {
-        return Quantity;
+        return quantity;
     }
 }

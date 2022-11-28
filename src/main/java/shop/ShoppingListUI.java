@@ -4,132 +4,119 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class ShoppingListUI {
-    // Program's Main Frame
-    static JFrame list_frame = new JFrame("Shopping List");
-    // Main Frame Properties
-    public static final int FRAME_WIDTH = 405;
-    public static final int FRAME_HEIGHT = 500;
-
-    // Pictures Declaration
-    public static final String FRAME_BG = "src/main//resources/frame_bg.jpg";
-    public static final String SAVE_BG = "src/main//resources/save_bg.png";
-    public static final String SEARCH_BG = "src/main//resources/search_bg.png";
-    public static final String PDF_BG = "src/main//resources/pdf_bg.png";
-
-    // Buttons Declaration
-    // Save Button Properties
-    public static final int SAVE_X = 80;
-    public static final int SAVE_Y = 10;
-    public static final int SAVE_SIZE = 45;
-    // Search Button Properties
-    public static final int SEARCH_X = 160;
-    public static final int SEARCH_Y = 10;
-    public static final int SEARCH_SIZE = 45;
-    // PDF Button Properties
-    private static final int PDF_X = 240;
-    public static final int PDF_Y = 10;
-    public static final int PDF_SIZE = 45;
-
-    // Text Fields Declaration
-    // Name Text Field Properties
-    public static final int NAME_X = 40;
-    public static final int NAME_Y = 100;
-    public static final int NAME_W = 250;
-    public static final int NAME_H = 50;
-    // Quantity Text Field Properties
-    public static final int QUANTITY_X = 300;
-    public static final int QUANTITY_Y = 100;
-    public static final int QUANTITY_W = 70;
-    public static final int QUANTITY_H = 50;
-
-    // Label Declaration
-    public static final int LABEL_Y = 80;
-    public static final int LABEL_H = 15;
-
-    // Shopping List Objects
+    // List Objects
     private static ShoppingListService shoppingList;
     private static final List<Item> itemList = new LinkedList<>();
+    private static final int ITEMS_NUM = 5;
+    private static final boolean[] isAdded = new boolean[ITEMS_NUM];
+    private static final String[] names = new String[ITEMS_NUM];
+    private static final String[] quantities = new String[ITEMS_NUM];
+    private static int NUM_OF_RECORDS;
+    private static final String[] savedNames = new String[NUM_OF_RECORDS];
+    private static final int[] savedQuantities = new int[NUM_OF_RECORDS];
+    // Colors Declaration
+    public static final Color HOVER_BORDER_COLOR = Color.decode("#6a6267");
+    public static final Color EXIT_BORDER_COLOR = Color.decode("#ffffff");
 
-    public static final int ITEMS_NUM = 5;
+    // Messages And Titles
+    public static final String SAVE_CONFIRM_MSG = "Are You Sure You Want To Save The List?";
+    public static final String SAVE_CONFIRM_TITLE = "Save List";
+    public static final String SAVED_MSG = "List Saved In Database!";
+    public static final String SAVED_TITLE = "Saved Successfully";
+    public static final String QUANTITY_RANGE_EX_MXG = "Quantity Is Less Than 0 Or Greater Than 100";
+    public static final String QUANTITY_RANGE_EX_TITLE = "Wrong Quantity";
+    public static final String QUANTITY_INPUT_EX_MXG = "Quantity Is Not A Correct Number";
+    public static final String QUANTITY_INPUT_EX_TITLE = "Wrong Quantity";
+    public static final String SAVE_AS_PDF_MSG = "Can't Save As PDF Yet :)";
+    public static final String SAVE_AS_PDF_TITLE = "Save PDF";
+    private static final String EMPTY_LIST_MSG = "List Is Empty!\nPlease Insert At Least 1 Name & Quantity";
+    private static final String EMPTY_NAME_MSG = "Name Is Empty! - Item: ";
+    private static final String EMPTY_QUANTITY_MSG = "Quantity Is Empty! - Item: ";
+    public static final String NO_LIST_MSG = "No List Is Saved";
+    public static final String SEARCH_FINISHED_MSG = "Search Finished!";
+    public static final String WARNING_TITLE = "Notice!";
+    public static final String INFO_TITLE = "Information";
+    private static final String WRONG_INPUT_TITLE = "Wrong Data Entered!";
 
+    // Font Declaration
+    public static final String FONT = "Times New Romance";
+    private static final int FONT_SIZE = 14;
+
+    // Program's Main Frame
+    static JFrame list_frame = new JFrame("Shopping List");
+    private static final int FRAME_WIDTH = 405;
+    private static final int FRAME_HEIGHT = 500;
+
+    // Pictures Declaration
+    private static final String FRAME_BG = "src/main//resources/frame_bg.jpg";
+    private static final String SAVE_BG = "src/main//resources/save_bg.png";
+    private static final String SEARCH_BG = "src/main//resources/search_bg.png";
+    private static final String PDF_BG = "src/main//resources/pdf_bg.png";
+
+    // Buttons Declaration
+    // Save Button
+    private static final int SAVE_X = 80;
+    private static final int SAVE_Y = 10;
+    private static final int SAVE_SIZE = 45;
+
+    // Search Button
+    private static final int SEARCH_X = 160;
+    private static final int SEARCH_Y = 10;
+    private static final int SEARCH_SIZE = 45;
+
+    // PDF Button
+    private static final int PDF_X = 240;
+    private static final int PDF_Y = 10;
+    private static final int PDF_SIZE = 45;
+
+    // Text Fields Declaration
     // Items Name Text Box
-    static JTextField[] itemNames = new JTextField[ITEMS_NUM];
+    private static final JTextField[] itemNames = new JTextField[ITEMS_NUM];
+    private static final int NAME_X = 40;
+    private static final int NAME_Y = 100;
+    private static final int NAME_W = 250;
+    private static final int NAME_H = 50;
 
     // Items Quantity Text Box
-    static JTextField[] itemQuantities = new JTextField[ITEMS_NUM];
+    private static final JTextField[] itemQuantities = new JTextField[ITEMS_NUM];
+    private static final int QUANTITY_X = 300;
+    private static final int QUANTITY_Y = 100;
+    private static final int QUANTITY_W = 70;
+    private static final int QUANTITY_H = 50;
+
+    // Label Declaration
+    private static final int LABEL_Y = 80;
+    private static final int LABEL_H = 15;
+
+    // Components Steps
+    private static final int ITEM_STEP = 56;
+    private static final int LABEL_STEP = 10;
 
     public static void main(String[] args){
         shoppingList = new ShoppingListServiceImpl(new ShoppingListDAOImpl());
 
         for (int i=0; i<ITEMS_NUM; i++){
-            itemNames[i] = newTextField(NAME_X, NAME_Y + (56*i), NAME_W, NAME_H);
-            itemQuantities[i] = newTextField(QUANTITY_X, QUANTITY_Y + (56*i), QUANTITY_W, QUANTITY_H);
+            itemNames[i] = newTextField(NAME_X, NAME_Y + (ITEM_STEP *i), NAME_W, NAME_H);
+            itemQuantities[i] = newTextField(QUANTITY_X, QUANTITY_Y + (ITEM_STEP *i), QUANTITY_W, QUANTITY_H);
         }
 
         // Labels Above Text Fields
         newLabel("Name", NAME_X, NAME_W);
-        newLabel(" Quantity", QUANTITY_X -10, QUANTITY_W +10);
+        newLabel(" Quantity", QUANTITY_X - LABEL_STEP, QUANTITY_W + LABEL_STEP);
 
         // Save To Database Button
-        JButton save = newButton(SAVE_X, SAVE_Y, SAVE_SIZE, "Save");
-        JLabel saveBG = setBackground(SAVE_BG, SAVE_X, SAVE_Y, SAVE_SIZE, SAVE_SIZE);
-        save.add(saveBG);
+        JButton save = newButton(SAVE_X, SAVE_Y, SAVE_SIZE, SAVE_BG, "Save");
         save.addActionListener(e -> saveItems());
-        save.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                save.setBorder((BorderFactory.createLineBorder(Color.decode("#6a6267"))));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                save.setBorder((BorderFactory.createLineBorder(Color.decode("#e9dfde"))));
-            }
-        });
-
         // Search Button
-        JButton search = newButton(SEARCH_X, SEARCH_Y, SEARCH_SIZE, "Search");
-        JLabel searchBG = setBackground(SEARCH_BG, SEARCH_X, SEARCH_Y, SEARCH_SIZE, SEARCH_SIZE);
-        search.add(searchBG);
+        JButton search = newButton(SEARCH_X, SEARCH_Y, SEARCH_SIZE, SEARCH_BG, "Search");
         search.addActionListener(e -> findAllItems());
-        search.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                search.setBorder((BorderFactory.createLineBorder(Color.decode("#6a6267"))));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                search.setBorder((BorderFactory.createLineBorder(Color.decode("#ffffff"))));
-            }
-        });
-
-        // Save To PDF Button
-        JButton pdf = newButton(PDF_X, PDF_Y, PDF_SIZE, ".PDF");
-        JLabel pdfBG = setBackground(PDF_BG, PDF_X, PDF_Y, PDF_SIZE, PDF_SIZE);
-        pdf.add(pdfBG);
-        pdf.addActionListener(e ->
-                JOptionPane.showMessageDialog(list_frame,
-                        "Can't Save As PDF Yet :)",
-                        "Save PDF", JOptionPane.WARNING_MESSAGE)
-        );
-
-        pdf.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                pdf.setBorder((BorderFactory.createLineBorder(Color.decode("#6a6267"))));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                pdf.setBorder((BorderFactory.createLineBorder(Color.decode("#ffffff"))));
-            }
-        });
+        // Save As PDF Button
+        JButton pdf = newButton(PDF_X, PDF_Y, PDF_SIZE, PDF_BG, "PDF");
+        pdf.addActionListener(e -> saveAsPdf());
 
         // Background Image Of Main Frame
         JLabel backGround = setBackground(FRAME_BG, 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
@@ -144,6 +131,9 @@ public class ShoppingListUI {
         }
         list_frame.add(backGround);
 
+        frameConfig();
+    }
+    private static void frameConfig() {
         // Main Frame Configuration
         list_frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         list_frame.setResizable(false);
@@ -152,21 +142,40 @@ public class ShoppingListUI {
         list_frame.setLocationRelativeTo(null);
         list_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+    private static void saveAsPdf() {
+        showMessage(SAVE_AS_PDF_MSG, SAVE_AS_PDF_TITLE, MessageType.WARNING);
+    }
     private static void newLabel(String Name, int x, int width) {
         JLabel nameLabel = new JLabel(Name);
         nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         nameLabel.setBounds(x,LABEL_Y, width,LABEL_H);
         nameLabel.setForeground(Color.white); //
-        nameLabel.setBackground(Color.decode("#000000"));
+        nameLabel.setBackground(Color.BLACK);
         nameLabel.setOpaque(true);
-        nameLabel.setFont(new Font("Times New Romance", Font.BOLD, 14));
+        nameLabel.setFont(new Font(FONT, Font.BOLD, FONT_SIZE));
         list_frame.add(nameLabel);
     }
-    private static JButton newButton(int x, int y, int size, String text){
+    private static JButton newButton(int x, int y, int size, String bg_path, String text){
         JButton button = new JButton(text);
         button.setBounds(x, y, size, size);
-        button.setBackground(Color.decode("#ffffff"));
-        button.setBorder((BorderFactory.createLineBorder(Color.decode("#ffffff"))));
+        button.setBackground(Color.white);
+        button.setBorder((BorderFactory.createLineBorder(Color.white)));
+
+        JLabel saveBG = setBackground(bg_path, x, y, size, size);
+        button.add(saveBG);
+
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBorder((BorderFactory.createLineBorder(HOVER_BORDER_COLOR)));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBorder((BorderFactory.createLineBorder(EXIT_BORDER_COLOR)));
+            }
+        });
+
         return button;
     }
     private static JTextField newTextField(int x, int y, int width, int height){
@@ -190,115 +199,135 @@ public class ShoppingListUI {
         int emptyCount = 0;
 
         for (int i=0; i<ITEMS_NUM; i++)
-            if(emptyItemNameOrQuantity(itemNames[i], itemQuantities[i]) == -2)
+            if(checkItem(itemNames[i], itemQuantities[i]) == ItemStatus.EMPTY_ITEM)
                 emptyCount++;
 
         return (emptyCount == ITEMS_NUM);
     }
-    private static int emptyItemNameOrQuantity(JTextField nameField, JTextField quantityField){
+    private static ItemStatus checkItem(JTextField nameField, JTextField quantityField){
         String name = nameField.getText();
         String quantity = quantityField.getText();
+        boolean emptyName = ((name == null) || (name.isEmpty()));
+        boolean emptyQuantity = ((quantity == null) || (quantity.isEmpty()));
 
-        if ((name == null || name.isEmpty()))
-            if ((quantity == null || quantity.isEmpty()))
-                return -2;
+        if (emptyName)
+            if (emptyQuantity)
+                return ItemStatus.EMPTY_ITEM;
             else
-                return -1;
+                return ItemStatus.EMPTY_NAME;
         else
-            if ((quantity == null || quantity.isEmpty()))
-                return 0;
+            if (emptyQuantity)
+                return ItemStatus.EMPTY_QUANTITY;
             else
-                return 1;
+                return ItemStatus.CORRECT_ITEM;
     }
     private static void saveItems() {
         shoppingList.clearList();
+        clearItemList();
+        getItems();
 
-        for (Item item : itemList) {
-            itemList.remove(item);
+        if (addItemsToList())
+        {
+            int result = JOptionPane.showConfirmDialog(null, SAVE_CONFIRM_MSG, SAVE_CONFIRM_TITLE, JOptionPane.YES_NO_OPTION);
+            if (result == 0) {
+                try {
+                    shoppingList.saveItems(itemList);
+                    showMessage(SAVED_MSG, SAVED_TITLE, MessageType.INFO);
+                    for (int j = 0; j < ITEMS_NUM; j++)
+                        if (isAdded[j])
+                            showMessage(names[j] + " - " + quantities[j], INFO_TITLE, MessageType.INFO);
+                } catch (ItemQuantityException e) {
+                    showMessage(QUANTITY_RANGE_EX_MXG, QUANTITY_RANGE_EX_TITLE, MessageType.ERROR);
+                }
+            }
         }
-
-        boolean[] isAdded = new boolean[ITEMS_NUM];
-        String[] names = new String[ITEMS_NUM];
-        String[] quantities = new String[ITEMS_NUM];
-
-        for (int i = 0; i < ITEMS_NUM; i++) {
-            names[i] = itemNames[i].getText();
-            quantities[i] = itemQuantities[i].getText();
-        }
-
+    }
+    private static boolean addItemsToList() {
         if (emptyList()) {
-            JOptionPane.showMessageDialog(list_frame, "List Is Empty!\nPlease Insert At Least 1 Name & Quantity", "Inane warning", JOptionPane.ERROR_MESSAGE);
-            return;
+            showMessage(EMPTY_LIST_MSG, WRONG_INPUT_TITLE,MessageType.ERROR);
+            return false;
         }
         else {
             for (int i = 0; i < ITEMS_NUM; i++) {
-                if (emptyItemNameOrQuantity(itemNames[i], itemQuantities[i]) == -1){
-                    JOptionPane.showMessageDialog(list_frame, "Item " + (i + 1) + " Name Is Empty!",  "Wrong Item Entered!", JOptionPane.WARNING_MESSAGE);
-                    return;
+                if (checkItem(itemNames[i], itemQuantities[i]) == ItemStatus.EMPTY_NAME){
+                    showMessage(EMPTY_NAME_MSG, WRONG_INPUT_TITLE,MessageType.WARNING);
+                    return false;
                 }
-                else if (emptyItemNameOrQuantity(itemNames[i], itemQuantities[i]) == 0){
-                    JOptionPane.showMessageDialog(list_frame, "Item " + (i + 1) + " Quantity Is Empty!",  "Wrong Item Entered!", JOptionPane.WARNING_MESSAGE);
-                    return;
+                else if (checkItem(itemNames[i], itemQuantities[i]) == ItemStatus.EMPTY_QUANTITY){
+                    showMessage(EMPTY_QUANTITY_MSG, WRONG_INPUT_TITLE,MessageType.WARNING);
+                    return false;
                 }
-                else if (emptyItemNameOrQuantity(itemNames[i], itemQuantities[i]) == 1) {
+                else if (checkItem(itemNames[i], itemQuantities[i]) == ItemStatus.CORRECT_ITEM) {
                     try {
                         itemList.add(new Item(names[i], Integer.parseInt(quantities[i])));
                         isAdded[i] = true;
                     }catch (NumberFormatException e){
-                        JOptionPane.showMessageDialog(list_frame, "Quantity Is Not A Correct Number", "Wrong Quantity", JOptionPane.ERROR_MESSAGE);
-                        return;
+                        showMessage(QUANTITY_INPUT_EX_MXG, QUANTITY_INPUT_EX_TITLE,MessageType.ERROR);
+                        return false;
                     }
                 }
             }
         }
-
-        int result = JOptionPane.showConfirmDialog(null, "Are You Sure You Want To Save The List?", "Save List", JOptionPane.YES_NO_OPTION);
-        if (result == 0) {
-            try {
-                shoppingList.saveItems(itemList);
-                JOptionPane.showMessageDialog(list_frame, "List Saved In Database!");
-                for (int j=0; j<ITEMS_NUM; j++)
-                    if (isAdded[j])
-                        JOptionPane.showMessageDialog(list_frame, names[j] + " - " + quantities[j]);
-            } catch (ItemQuantityException e) {
-                JOptionPane.showMessageDialog(list_frame, "Quantity Is Less Than 0 Or Greater Than 100", "Wrong Quantity", JOptionPane.ERROR_MESSAGE);
-            }
+        return true;
+    }
+    private static void getItems() {
+        for (int i = 0; i < ITEMS_NUM; i++) {
+            names[i] = itemNames[i].getText();
+            quantities[i] = itemQuantities[i].getText();
         }
     }
+    private static void clearItemList() {
+        for (Item item : itemList) {
+            itemList.remove(item);
+        }
+    }
+    private static void showMessage(String message, String title, MessageType type) {
+        if (type == MessageType.ERROR)
+            JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.ERROR_MESSAGE);
+        else if (type == MessageType.INFO)
+            JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.INFORMATION_MESSAGE);
+        else if (type == MessageType.WARNING)
+            JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.WARNING_MESSAGE);
+    }
     private static void findAllItems() {
-        int numOfRecords = shoppingList.countRecords();
-
-        if (numOfRecords == 0)
-            JOptionPane.showMessageDialog(list_frame, "No List Is Saved",  "Inane warning", JOptionPane.ERROR_MESSAGE);
-
+        NUM_OF_RECORDS = shoppingList.countRecords();
+        if (NUM_OF_RECORDS == 0)
+            showMessage(NO_LIST_MSG, WARNING_TITLE, MessageType.ERROR);
         else{
             List<Item> items = shoppingList.findAllItems();
-            String[] names = new String[numOfRecords];
-            int[] quantities = new int[numOfRecords];
-            String[] message = new String[(numOfRecords/8)+1];
-            int i =0;
+            String savedList = getSavedList(items);
+            showMessage(savedList, INFO_TITLE, MessageType.INFO);
+            showMessage(SEARCH_FINISHED_MSG, INFO_TITLE, MessageType.INFO);
+        }
+    }
+    private static String getSavedList(List<Item> items) {
+        int i =0;
+        StringBuilder savedList = new StringBuilder();
+        NUM_OF_RECORDS = shoppingList.countRecords();
 
-            Arrays.fill(message, new String(""));
+        for (Item item : items) {
+            savedNames[i] = item.getName();
+            savedQuantities[i] = item.getQuantity();
+        }
 
-            for (Item item : items) {
-                names[i] = item.getName();
-                quantities[i] = item.getQuantity();
-                i++;
+        for (int j = 0; j< NUM_OF_RECORDS; j++) {
+            savedList.append("Item ").append((j + 1)).append(":\n")
+            .append("Name: ").append(savedNames[j]).append(",\n")
+            .append("Quantity: ").append(savedQuantities[j])
+            .append("\n __________________\n");
             }
 
-            for (int j=0; j<numOfRecords; j++) {
-                message[j/8] += "Item " + (j+1) + ":\n" +
-                                "Name: " + names[j] + ",\n" +
-                                "Quantity: " + quantities[j] +
-                                "\n __________________\n";
-                }
-
-            JOptionPane.showMessageDialog(list_frame, message[0]);
-            for (int l=1; l<message.length; l++)
-                if (message[l] !=null || !(message[l].isEmpty()))
-                    JOptionPane.showMessageDialog(list_frame, message[l]);
-
-            JOptionPane.showMessageDialog(list_frame, "Search Finished!");
-        }
+        return savedList.toString();
+    }
+    enum MessageType {
+        ERROR,
+        INFO,
+        WARNING
+    }
+    enum ItemStatus {
+        EMPTY_ITEM,
+        EMPTY_NAME,
+        EMPTY_QUANTITY,
+        CORRECT_ITEM
     }
 }
