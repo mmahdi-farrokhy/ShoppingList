@@ -10,14 +10,13 @@ import java.util.List;
 public class ShoppingListUI {
     // List Objects
     private static ShoppingListService shoppingList;
+    private static PdfService pdfService;
     private static final List<Item> itemList = new LinkedList<>();
     private static final int ITEMS_NUM = 5;
     private static final boolean[] isAdded = new boolean[ITEMS_NUM];
     private static final String[] names = new String[ITEMS_NUM];
     private static final String[] quantities = new String[ITEMS_NUM];
     private static int NUM_OF_RECORDS;
-    private static final String[] savedNames = new String[NUM_OF_RECORDS];
-    private static final int[] savedQuantities = new int[NUM_OF_RECORDS];
     // Colors Declaration
     public static final Color HOVER_BORDER_COLOR = Color.decode("#6a6267");
     public static final Color EXIT_BORDER_COLOR = Color.decode("#ffffff");
@@ -31,7 +30,7 @@ public class ShoppingListUI {
     public static final String QUANTITY_RANGE_EX_TITLE = "Wrong Quantity";
     public static final String QUANTITY_INPUT_EX_MXG = "Quantity Is Not A Correct Number";
     public static final String QUANTITY_INPUT_EX_TITLE = "Wrong Quantity";
-    public static final String SAVE_AS_PDF_MSG = "Can't Save As PDF Yet :)";
+    public static final String SAVE_AS_PDF_MSG = "List Saved As List.pdf";
     public static final String SAVE_AS_PDF_TITLE = "Save PDF";
     private static final String EMPTY_LIST_MSG = "List Is Empty!\nPlease Insert At Least 1 Name & Quantity";
     private static final String EMPTY_NAME_MSG = "Name Is Empty! - Item: ";
@@ -97,7 +96,8 @@ public class ShoppingListUI {
     private static final int LABEL_STEP = 10;
 
     public static void main(String[] args){
-        shoppingList = new ShoppingListServiceImpl(new ShoppingListDAOImpl());
+        shoppingList = new ShoppingListServiceImplementer(new ShoppingListDAOImplementer());
+        pdfService = new PdfServiceImplementer();
 
         for (int i=0; i<ITEMS_NUM; i++){
             itemNames[i] = newTextField(NAME_X, NAME_Y + (ITEM_STEP *i), NAME_W, NAME_H);
@@ -143,6 +143,17 @@ public class ShoppingListUI {
         list_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
     private static void saveAsPdf() {
+        StringBuilder text = new StringBuilder();
+        if (emptyList()) {
+            showMessage(EMPTY_LIST_MSG + "\nSave A List First", WARNING_TITLE, MessageType.WARNING);
+            return;
+        }
+        else
+            for (Item item : itemList) {
+                text.append(item.getName()).append(" - ").append(item.getQuantity()).append("\n");
+            }
+
+        pdfService.saveAsPdf(text.toString());
         showMessage(SAVE_AS_PDF_MSG, SAVE_AS_PDF_TITLE, MessageType.WARNING);
     }
     private static void newLabel(String Name, int x, int width) {
@@ -250,11 +261,11 @@ public class ShoppingListUI {
         else {
             for (int i = 0; i < ITEMS_NUM; i++) {
                 if (checkItem(itemNames[i], itemQuantities[i]) == ItemStatus.EMPTY_NAME){
-                    showMessage(EMPTY_NAME_MSG, WRONG_INPUT_TITLE,MessageType.WARNING);
+                    showMessage(EMPTY_NAME_MSG + (i+1), WRONG_INPUT_TITLE,MessageType.WARNING);
                     return false;
                 }
                 else if (checkItem(itemNames[i], itemQuantities[i]) == ItemStatus.EMPTY_QUANTITY){
-                    showMessage(EMPTY_QUANTITY_MSG, WRONG_INPUT_TITLE,MessageType.WARNING);
+                    showMessage(EMPTY_QUANTITY_MSG + (i+1), WRONG_INPUT_TITLE,MessageType.WARNING);
                     return false;
                 }
                 else if (checkItem(itemNames[i], itemQuantities[i]) == ItemStatus.CORRECT_ITEM) {
@@ -281,16 +292,9 @@ public class ShoppingListUI {
             itemList.remove(item);
         }
     }
-    private static void showMessage(String message, String title, MessageType type) {
-        if (type == MessageType.ERROR)
-            JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.ERROR_MESSAGE);
-        else if (type == MessageType.INFO)
-            JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.INFORMATION_MESSAGE);
-        else if (type == MessageType.WARNING)
-            JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.WARNING_MESSAGE);
-    }
     private static void findAllItems() {
         NUM_OF_RECORDS = shoppingList.countRecords();
+
         if (NUM_OF_RECORDS == 0)
             showMessage(NO_LIST_MSG, WARNING_TITLE, MessageType.ERROR);
         else{
@@ -303,11 +307,15 @@ public class ShoppingListUI {
     private static String getSavedList(List<Item> items) {
         int i =0;
         StringBuilder savedList = new StringBuilder();
+        String[] savedNames = new String[NUM_OF_RECORDS];
+        int[] savedQuantities = new int[NUM_OF_RECORDS];
+
         NUM_OF_RECORDS = shoppingList.countRecords();
 
         for (Item item : items) {
             savedNames[i] = item.getName();
             savedQuantities[i] = item.getQuantity();
+            i++;
         }
 
         for (int j = 0; j< NUM_OF_RECORDS; j++) {
@@ -318,6 +326,14 @@ public class ShoppingListUI {
             }
 
         return savedList.toString();
+    }
+    private static void showMessage(String message, String title, MessageType type) {
+        if (type == MessageType.ERROR)
+            JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.ERROR_MESSAGE);
+        else if (type == MessageType.INFO)
+            JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.INFORMATION_MESSAGE);
+        else if (type == MessageType.WARNING)
+            JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.WARNING_MESSAGE);
     }
     enum MessageType {
         ERROR,

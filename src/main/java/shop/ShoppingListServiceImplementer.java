@@ -2,11 +2,11 @@ package shop;
 
 import java.util.List;
 
-public class ShoppingListServiceImpl implements ShoppingListService {
+public class ShoppingListServiceImplementer implements ShoppingListService {
     final ShoppingListDAO shoppingListDAO;
 
     // Dependency Injection
-    public ShoppingListServiceImpl(ShoppingListDAO shoppingListDAO) {
+    public ShoppingListServiceImplementer(ShoppingListDAO shoppingListDAO) {
         this.shoppingListDAO = shoppingListDAO;
     }
 

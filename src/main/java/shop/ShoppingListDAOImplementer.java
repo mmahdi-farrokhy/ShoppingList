@@ -14,7 +14,7 @@ import java.util.Properties;
 
 import static java.sql.DriverManager.getConnection;
 
-public class ShoppingListDAOImpl implements ShoppingListDAO {
+public class ShoppingListDAOImplementer implements ShoppingListDAO {
     private static final String SELECT_QUERY = "SELECT * FROM item";
     private static final String INSERT_QUERY = "INSERT INTO item (Name, Quantity) VALUES (?, ?)";
     private static final String COUNT_QUERY = "SELECT COUNT(*) AS numOfRecords FROM item WHERE Name IS NOT NULL;";
@@ -23,7 +23,7 @@ public class ShoppingListDAOImpl implements ShoppingListDAO {
     private static String username;
     private static String password;
 
-    public ShoppingListDAOImpl() {
+    public ShoppingListDAOImplementer() {
         try (InputStream configFile = Files.newInputStream(Paths.get("db-config.properties"))){
             final Properties properties = new Properties();
             properties.load(configFile);
