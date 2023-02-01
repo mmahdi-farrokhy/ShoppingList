@@ -6,9 +6,7 @@ public interface ShoppingListDAO {
     List<Item> findAllItems();
 
     void  saveItems(List<Item> items);
-
     int countRecords();
-
     void clearList();
 
 }

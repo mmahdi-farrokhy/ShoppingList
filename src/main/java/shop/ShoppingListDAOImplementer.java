@@ -34,7 +34,6 @@ public class ShoppingListDAOImplementer implements ShoppingListDAO {
             e.printStackTrace();
         }
     }
-
     @Override
     public List<Item> findAllItems() {
         List<Item> items = new LinkedList<>();
@@ -53,7 +52,6 @@ public class ShoppingListDAOImplementer implements ShoppingListDAO {
         }
         return items;
     }
-
     @Override
     public void saveItems(List<Item> items) {
         try(final Connection con = getConnection(host, username, password);
@@ -69,7 +67,6 @@ public class ShoppingListDAOImplementer implements ShoppingListDAO {
             throw new QueryExecutionException(e);
         }
     }
-
     @Override
     public int countRecords() {
         try(final Connection con = getConnection(host, username, password);
@@ -82,7 +79,6 @@ public class ShoppingListDAOImplementer implements ShoppingListDAO {
             throw new QueryExecutionException(e);
         }
     }
-
     @Override
     public void clearList() {
         try(final Connection con = getConnection(host, username, password);

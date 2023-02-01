@@ -335,15 +335,4 @@ public class ShoppingListUI {
         else if (type == MessageType.WARNING)
             JOptionPane.showMessageDialog(list_frame, message, title, JOptionPane.WARNING_MESSAGE);
     }
-    enum MessageType {
-        ERROR,
-        INFO,
-        WARNING
-    }
-    enum ItemStatus {
-        EMPTY_ITEM,
-        EMPTY_NAME,
-        EMPTY_QUANTITY,
-        CORRECT_ITEM
-    }
 }

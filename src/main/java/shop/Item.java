@@ -12,7 +12,6 @@ public class Item {
     public void check() {
         if (invalidName())
             throw new ItemNameException("Name is null or empty");
-
         if (invalidQuantity())
             throw new ItemQuantityException("Size is out of range");
     }
